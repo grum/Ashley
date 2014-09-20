@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2014 See AUTHORS file.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,19 +24,22 @@ import com.artemis.systems.EntityProcessingSystem;
 import com.badlogic.ashley.benchmark.artemis.components.StateComponent;
 
 public class StateSystem extends EntityProcessingSystem {
-	@Mapper ComponentMapper<StateComponent> sm;
-	
-	public StateSystem() {
-		super(Aspect.getAspectForAll(StateComponent.class));
-	}
+    @Mapper
+    ComponentMapper<StateComponent> sm;
 
-	@Override
-	protected void initialize() {
-		sm = world.getMapper(StateComponent.class);
-	};
+    public StateSystem() {
+        super(Aspect.getAspectForAll(StateComponent.class));
+    }
 
-	@Override
-	protected void process(Entity entity) {
-		sm.get(entity).time += world.getDelta();
-	}
+    @Override
+    protected void initialize() {
+        sm = world.getMapper(StateComponent.class);
+    }
+
+    ;
+
+    @Override
+    protected void process(Entity entity) {
+        sm.get(entity).time += world.getDelta();
+    }
 }

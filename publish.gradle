@@ -1,6 +1,3 @@
-import org.gradle.api.XmlProvider
-import org.gradle.api.artifacts.maven.MavenDeployment
-
 apply plugin: 'maven'
 apply plugin: 'signing'
 
@@ -15,9 +12,9 @@ def isReleaseBuild
 def sonatypeRepositoryUrl
 
 //set build variables based on build type (release, continuous integration, development)
-if(hasProperty("release")) {
+if (hasProperty("release")) {
     isReleaseBuild = true
-    sonatypeRepositoryUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"                             
+    sonatypeRepositoryUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
     println "Performing release build"
 } else if (hasProperty("snapshot")) {
     isCiBuild = true
@@ -49,7 +46,7 @@ artifacts {
     archives artifactSources
 }
 
-if(isReleaseBuild) {
+if (isReleaseBuild) {
     signing {
         sign configurations.archives
     }
@@ -63,50 +60,49 @@ uploadArchives {
     repositories {
         if (isDevBuild) {
             mavenLocal()
-        }
-        else {
+        } else {
             mavenDeployer {
-                if(isReleaseBuild) {
+                if (isReleaseBuild) {
                     beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
                 }
 
                 repository(url: sonatypeRepositoryUrl) {
-                  authentication(userName: sonatypeUsername, password: sonatypePassword)
+                    authentication(userName: sonatypeUsername, password: sonatypePassword)
                 }
 
                 pom.version = version
                 pom.packaging = 'jar'
 
                 pom.project {
-                   name 'Ashley'
-                   description 'Ashely, a miminal entity framework inspired by Ash and Atermis'
-                   url 'https://github.com/libgdx/ashley'
+                    name 'Ashley'
+                    description 'Ashely, a miminal entity framework inspired by Ash and Atermis'
+                    url 'https://github.com/libgdx/ashley'
 
-                   scm {
-                       url 'scm:git@github.com:libgdx/ashley.git'
-                       connection 'scm:git@github.com:libgdx/ashley.git'
-                       developerConnection 'scm:git@github.com:libgdx/ashley.git'
-                   }
+                    scm {
+                        url 'scm:git@github.com:libgdx/ashley.git'
+                        connection 'scm:git@github.com:libgdx/ashley.git'
+                        developerConnection 'scm:git@github.com:libgdx/ashley.git'
+                    }
 
-                   licenses {
-                       license {
-                           name 'The Apache Software License, Version 2.0'
-                           url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                           distribution 'repo'
-                       }
-                   }
+                    licenses {
+                        license {
+                            name 'The Apache Software License, Version 2.0'
+                            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                            distribution 'repo'
+                        }
+                    }
 
-                   developers {
-                       developer {
-                           id 'stbachmann'
-                           name 'Stefan Bachmann'
-                       }
-                       developer {
-                           id 'siondream'
-                           name 'David Saltares'
-                       }
-                   }
-               }
+                    developers {
+                        developer {
+                            id 'stbachmann'
+                            name 'Stefan Bachmann'
+                        }
+                        developer {
+                            id 'siondream'
+                            name 'David Saltares'
+                        }
+                    }
+                }
             }
         }
     }
