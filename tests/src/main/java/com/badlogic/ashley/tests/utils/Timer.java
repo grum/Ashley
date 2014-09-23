@@ -49,7 +49,8 @@ public class Timer {
         if (times.containsKey(name)) {
             long startTime = times.remove(name);
             return System.currentTimeMillis() - startTime;
-        } else
+        } else {
             throw new RuntimeException("Timer id doesn't exist.");
+        }
     }
 }

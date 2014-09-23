@@ -43,8 +43,9 @@ public class BasicTest {
         for (int i = 0; i < 10; i++) {
             Entity entity = engine.createEntity();
             entity.add(new PositionComponent(10, 0));
-            if (i > 5)
+            if (i > 5) {
                 entity.add(new MovementComponent(10, 2));
+            }
 
             engine.addEntity(entity);
         }
@@ -55,8 +56,9 @@ public class BasicTest {
         for (int i = 0; i < 10; i++) {
             engine.update(0.25f);
 
-            if (i > 5)
+            if (i > 5) {
                 engine.removeSystem(movementSystem);
+            }
         }
 
         engine.removeEntityListener(listener);

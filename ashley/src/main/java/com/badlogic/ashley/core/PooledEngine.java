@@ -56,10 +56,7 @@ public class PooledEngine extends Engine {
      * @param componentPoolInitialSize initial size for each component type pool.
      * @param componentPoolMaxSize     maximum size for each component type pool.
      */
-    public PooledEngine(int entityPoolInitialSize,
-                        int entityPoolMaxSize,
-                        int componentPoolInitialSize,
-                        int componentPoolMaxSize) {
+    public PooledEngine(int entityPoolInitialSize, int entityPoolMaxSize, int componentPoolInitialSize, int componentPoolMaxSize) {
         super();
 
         entityPool = new EntityPool(entityPoolInitialSize, entityPoolMaxSize);
@@ -166,11 +163,15 @@ public class PooledEngine extends Engine {
         }
 
         public void freeAll(Array objects) {
-            if (objects == null) throw new IllegalArgumentException("objects cannot be null.");
+            if (objects == null) {
+                throw new IllegalArgumentException("objects cannot be null.");
+            }
 
             for (int i = 0, n = objects.size; i < n; i++) {
                 Object object = objects.get(i);
-                if (object == null) continue;
+                if (object == null) {
+                    continue;
+                }
                 free(object);
             }
         }
