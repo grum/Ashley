@@ -33,7 +33,7 @@ project(":ashley") {
     apply from: '../publish.gradle'
 
     dependencies {
-        compile "com.badlogicgames.gdx:gdx:$gdxVersion"
+        compile project(':gdx-lib')
     }
 }
 
