@@ -32,11 +32,11 @@ import java.util.NoSuchElementException;
  * @author Nathan Sweet
  */
 public class ObjectMap<K, V> implements Iterable<ObjectMap.Entry<K, V>> {
-    private static final int PRIME1 = 0xbe1f14b1;
+//    private static final int PRIME1 = 0xbe1f14b1;
     private static final int PRIME2 = 0xb4b82e39;
     private static final int PRIME3 = 0xced1c241;
 
-    public int size;
+    private int size;
 
     K[] keyTable;
     V[] valueTable;
@@ -78,7 +78,7 @@ public class ObjectMap<K, V> implements Iterable<ObjectMap.Entry<K, V>> {
         if (initialCapacity > 1 << 30) {
             throw new IllegalArgumentException("initialCapacity is too large: " + initialCapacity);
         }
-        capacity = MathUtils.nextPowerOfTwo(initialCapacity);
+        capacity = nextPowerOfTwo(initialCapacity);
 
         if (loadFactor <= 0) {
             throw new IllegalArgumentException("loadFactor must be > 0: " + loadFactor);
@@ -346,7 +346,9 @@ public class ObjectMap<K, V> implements Iterable<ObjectMap.Entry<K, V>> {
     private V getStash(K key) {
         K[] keyTable = this.keyTable;
         for (int i = capacity, n = i + stashSize; i < n; i++) {
-            if (key.equals(keyTable[i])) return valueTable[i];
+            if (key.equals(keyTable[i])) {
+                return valueTable[i];
+            }
         }
         return null;
     }
@@ -372,7 +374,9 @@ public class ObjectMap<K, V> implements Iterable<ObjectMap.Entry<K, V>> {
     private V getStash(K key, V defaultValue) {
         K[] keyTable = this.keyTable;
         for (int i = capacity, n = i + stashSize; i < n; i++) {
-            if (key.equals(keyTable[i])) return valueTable[i];
+            if (key.equals(keyTable[i])) {
+                return valueTable[i];
+            }
         }
         return defaultValue;
     }
@@ -449,7 +453,7 @@ public class ObjectMap<K, V> implements Iterable<ObjectMap.Entry<K, V>> {
         if (capacity <= maximumCapacity) {
             return;
         }
-        maximumCapacity = MathUtils.nextPowerOfTwo(maximumCapacity);
+        maximumCapacity = nextPowerOfTwo(maximumCapacity);
         resize(maximumCapacity);
     }
 
@@ -491,15 +495,21 @@ public class ObjectMap<K, V> implements Iterable<ObjectMap.Entry<K, V>> {
         if (value == null) {
             K[] keyTable = this.keyTable;
             for (int i = capacity + stashSize; i-- > 0; ) {
-                if (keyTable[i] != null && valueTable[i] == null) return true;
+                if (keyTable[i] != null && valueTable[i] == null) {
+                    return true;
+                }
             }
         } else if (identity) {
             for (int i = capacity + stashSize; i-- > 0; ) {
-                if (valueTable[i] == value) return true;
+                if (valueTable[i] == value) {
+                    return true;
+                }
             }
         } else {
             for (int i = capacity + stashSize; i-- > 0; ) {
-                if (value.equals(valueTable[i])) return true;
+                if (value.equals(valueTable[i])) {
+                    return true;
+                }
             }
         }
         return false;
@@ -523,7 +533,9 @@ public class ObjectMap<K, V> implements Iterable<ObjectMap.Entry<K, V>> {
     private boolean containsKeyStash(K key) {
         K[] keyTable = this.keyTable;
         for (int i = capacity, n = i + stashSize; i < n; i++) {
-            if (key.equals(keyTable[i])) return true;
+            if (key.equals(keyTable[i])) {
+                return true;
+            }
         }
         return false;
     }
@@ -540,15 +552,21 @@ public class ObjectMap<K, V> implements Iterable<ObjectMap.Entry<K, V>> {
         if (value == null) {
             K[] keyTable = this.keyTable;
             for (int i = capacity + stashSize; i-- > 0; ) {
-                if (keyTable[i] != null && valueTable[i] == null) return keyTable[i];
+                if (keyTable[i] != null && valueTable[i] == null) {
+                    return keyTable[i];
+                }
             }
         } else if (identity) {
             for (int i = capacity + stashSize; i-- > 0; ) {
-                if (valueTable[i] == value) return keyTable[i];
+                if (valueTable[i] == value) {
+                    return keyTable[i];
+                }
             }
         } else {
             for (int i = capacity + stashSize; i-- > 0; ) {
-                if (value.equals(valueTable[i])) return keyTable[i];
+                if (value.equals(valueTable[i])) {
+                    return keyTable[i];
+                }
             }
         }
         return null;
@@ -561,7 +579,7 @@ public class ObjectMap<K, V> implements Iterable<ObjectMap.Entry<K, V>> {
     public void ensureCapacity(int additionalCapacity) {
         int sizeNeeded = size + additionalCapacity;
         if (sizeNeeded >= threshold) {
-            resize(MathUtils.nextPowerOfTwo((int) (sizeNeeded / loadFactor)));
+            resize(nextPowerOfTwo((int) (sizeNeeded / loadFactor)));
         }
     }
 
@@ -649,6 +667,7 @@ public class ObjectMap<K, V> implements Iterable<ObjectMap.Entry<K, V>> {
         return buffer.toString();
     }
 
+    @Override
     public Iterator<Entry<K, V>> iterator() {
         return entries();
     }
@@ -754,6 +773,7 @@ public class ObjectMap<K, V> implements Iterable<ObjectMap.Entry<K, V>> {
             }
         }
 
+        @Override
         public void remove() {
             if (currentIndex < 0) {
                 throw new IllegalStateException("next must be called before remove.");
@@ -781,12 +801,13 @@ public class ObjectMap<K, V> implements Iterable<ObjectMap.Entry<K, V>> {
         /**
          * Note the same entry instance is returned each time this method is called.
          */
+        @Override
         public Entry<K, V> next() {
             if (!hasNext) {
                 throw new NoSuchElementException();
             }
             if (!valid) {
-                throw new GdxRuntimeException("#iterator() cannot be used nested.");
+                throw new RuntimeException("#iterator() cannot be used nested.");
             }
             K[] keyTable = map.keyTable;
             entry.key = keyTable[nextIndex];
@@ -796,13 +817,15 @@ public class ObjectMap<K, V> implements Iterable<ObjectMap.Entry<K, V>> {
             return entry;
         }
 
+        @Override
         public boolean hasNext() {
             if (!valid) {
-                throw new GdxRuntimeException("#iterator() cannot be used nested.");
+                throw new RuntimeException("#iterator() cannot be used nested.");
             }
             return hasNext;
         }
 
+        @Override
         public Iterator<Entry<K, V>> iterator() {
             return this;
         }
@@ -813,19 +836,21 @@ public class ObjectMap<K, V> implements Iterable<ObjectMap.Entry<K, V>> {
             super((ObjectMap<Object, V>) map);
         }
 
+        @Override
         public boolean hasNext() {
             if (!valid) {
-                throw new GdxRuntimeException("#iterator() cannot be used nested.");
+                throw new RuntimeException("#iterator() cannot be used nested.");
             }
             return hasNext;
         }
 
+        @Override
         public V next() {
             if (!hasNext) {
                 throw new NoSuchElementException();
             }
             if (!valid) {
-                throw new GdxRuntimeException("#iterator() cannot be used nested.");
+                throw new RuntimeException("#iterator() cannot be used nested.");
             }
             V value = map.valueTable[nextIndex];
             currentIndex = nextIndex;
@@ -833,6 +858,7 @@ public class ObjectMap<K, V> implements Iterable<ObjectMap.Entry<K, V>> {
             return value;
         }
 
+        @Override
         public Iterator<V> iterator() {
             return this;
         }
@@ -860,19 +886,21 @@ public class ObjectMap<K, V> implements Iterable<ObjectMap.Entry<K, V>> {
             super((ObjectMap<K, Object>) map);
         }
 
+        @Override
         public boolean hasNext() {
             if (!valid) {
-                throw new GdxRuntimeException("#iterator() cannot be used nested.");
+                throw new RuntimeException("#iterator() cannot be used nested.");
             }
             return hasNext;
         }
 
+        @Override
         public K next() {
             if (!hasNext) {
                 throw new NoSuchElementException();
             }
             if (!valid) {
-                throw new GdxRuntimeException("#iterator() cannot be used nested.");
+                throw new RuntimeException("#iterator() cannot be used nested.");
             }
             K key = map.keyTable[nextIndex];
             currentIndex = nextIndex;
@@ -880,6 +908,7 @@ public class ObjectMap<K, V> implements Iterable<ObjectMap.Entry<K, V>> {
             return key;
         }
 
+        @Override
         public Iterator<K> iterator() {
             return this;
         }
@@ -900,5 +929,18 @@ public class ObjectMap<K, V> implements Iterable<ObjectMap.Entry<K, V>> {
             }
             return array;
         }
+    }
+
+    public static int nextPowerOfTwo(int value) {
+        if (value == 0) {
+            return 1;
+        }
+        value--;
+        value |= value >> 1;
+        value |= value >> 2;
+        value |= value >> 4;
+        value |= value >> 8;
+        value |= value >> 16;
+        return value + 1;
     }
 }

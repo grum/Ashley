@@ -59,11 +59,15 @@ public class ReflectionPool<T> extends Pool<T> {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
     protected T newObject() {
         try {
             return (T) constructor.newInstance((Object[]) null);
         } catch (Exception ex) {
-            throw new GdxRuntimeException("Unable to create new instance: " + constructor.getDeclaringClass().getName(), ex);
+            final String message = "Unable to create new instance: " + constructor.getDeclaringClass().getName();
+            final Throwable t = ex;
+            throw new RuntimeException(message, t);
         }
     }
 }
